@@ -5,10 +5,12 @@
 *.DS_Store
 
 *__pycache__/
+*.db
 
 env/
 
 practical_sessions/tp2_ols_ridge/data/*.npy
+practical_sessions/tp4_knn_lr/*/solutions/
 
 2022/
 README_backup.md
