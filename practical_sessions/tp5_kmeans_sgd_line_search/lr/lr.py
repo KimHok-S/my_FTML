@@ -73,8 +73,8 @@ def main() -> None:
     """
     gamma_0 = 1
     max_n_iterations_sgd = int(1e5)
-    # schedule = "decreasing 1"
-    schedule = "constant"
+    schedule = "decreasing 2"
+    # schedule = "constant"
     tic = time()
     theta_sgd = SGD(
         gamma_0,

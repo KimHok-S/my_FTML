@@ -7,7 +7,7 @@ from scipy.spatial.distance import cdist
 
 rng = np.random.default_rng()
 
-stds = 50
+stds = 100
 
 mean_1 = (600, 2000, 2000, 20)
 std_1 = stds

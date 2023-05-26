@@ -53,6 +53,35 @@ def main() -> None:
     GD_distances_to_opt = list()
     LS_distances_to_opt = list()
 
+    """
+        Gradient descent
+    """
+    theta = theta_0
+    for _ in range(number_of_iterations):
+        theta = theta - gamma_gd * gradient(X, y, theta)
+        GD_distances_to_opt.append(np.linalg.norm(theta - eta_star, ord=2))
+
+    """
+        Line search
+    """
+    theta = theta_0
+    for _ in range(number_of_iterations):
+        gamma_star = compute_gamma_star(H, gradient(X, y, theta))
+        theta = theta - gamma_star * gradient(X, y, theta)
+        LS_distances_to_opt.append(np.linalg.norm(theta - eta_star, ord=2))
+
+    """
+        Plot the results
+    """
+    plt.figure()
+    plt.plot(GD_distances_to_opt, label="GD")
+    plt.plot(LS_distances_to_opt, label="LS")
+    plt.legend()
+    plt.xlabel("Number of iterations")
+    plt.ylabel("Distance to the optimal")
+    plt.title(f"GD and LS on a strongly convex loss function (kappa = {kappa})")
+    plt.show()
+
 
 if __name__ == "__main__":
     main()

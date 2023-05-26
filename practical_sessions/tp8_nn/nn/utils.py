@@ -54,23 +54,27 @@ def forward_pass(
     X_stacked = np.column_stack((X, ones_X))
 
     # linear product between inputs and first hidden layer
-    pre_h = np.ones((n, wh.shape[1]))
+    pre_h = np.dot(X_stacked, wh)
 
     # apply non linearity
-    h = pre_h
+    h = relu(pre_h)
 
     # stack h with a column of 1s in order to add the intercepts
     ones_h = np.ones(shape=(n, 1))
     h_stacked = np.column_stack((h, ones_h))
 
     # linear operation between hidden layer and output layer
-    pre_y = 1
+    pre_y = np.dot(h_stacked, theta)
 
     # apply non linearity
-    y_hat = np.ones((n, 1))
+    y_hat = relu(pre_y)
 
     # return all the steps (useful for gradients)
     outputs = dict()
+    print("pre_h", pre_h.shape)
+    print("h", h.shape)
+    print("pre_y", pre_y.shape)
+    print("y_hat", y_hat.shape)
     outputs["pre_h"] = pre_h
     outputs["h"] = h
     outputs["pre_y"] = pre_y
@@ -102,9 +106,21 @@ def compute_gradients(
     """
     # first compute the gradient with respect to theta
     dl_dy_hat = y_hat - y
+    dy_hat_dpre_y = relu_derivative(pre_y)
+    print("dy_hat_dpre_y", dy_hat_dpre_y)
+    dpre_y_dtheta = np.append(h, 1)
+    dl_dtheta = dl_dy_hat * dy_hat_dpre_y * dpre_y_dtheta
+    print("dl_dtheta", dl_dtheta.shape)
+
+    # then compute the gradient with respect to wh
+    dy_hat_dh = theta[:-1]
+    dh_dpre_h = relu_derivative(pre_h)
+    dpre_h_dwh = x
+    dl_dwh = np.dot(dpre_h_dwh.T, dl_dy_hat * dy_hat_dh * dh_dpre_h)
+    print("dl_dwh", dl_dwh.shape)
 
     # return
     gradients = dict()
-    gradients["dl_dtheta"] = theta
-    gradients["dl_dwh"] = np.ones((2, len(theta) - 1))
+    gradients["dl_dtheta"] = dl_dtheta
+    gradients["dl_dwh"] = dl_dwh
     return gradients

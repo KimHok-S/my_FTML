@@ -1,5 +1,5 @@
 """
-    Goal: obsevrve curse of dimensionality for local averaging
+    Goal: observe curse of dimensionality for local averaging
     with nearest neighbors algorithm.
 
     we have epsilon=O(n^{-1/d})
@@ -26,14 +26,23 @@ def predict(x_data: np.ndarray, y_data: np.ndarray, x_test: np.ndarray) -> np.nd
         Returns:
             y_predictions (float matrix): predictions for the data
             in x_test.
-            y_predictions must be of shape (n_test,)
+            y_predictions must be of shape (n_test, 1)
 
         You need to edit this function.
         You can use cdist from scipy.
         https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.cdist.html
 
     """
-    return 1
+    # compute distances between x_test and x_data
+    distances = cdist(x_test, x_data, "euclidean")
+
+    # find the k nearest neighbors
+    k_nn = np.argsort(distances, axis=1)[:, :k]
+
+    # compute the average of the k nearest neighbors
+    y_predictions = np.mean(y_data[k_nn], axis=1)
+
+    return y_predictions
 
 
 def knn_d_n(n_samples: int, d: int) -> tuple[float, float]:
@@ -45,10 +54,23 @@ def knn_d_n(n_samples: int, d: int) -> tuple[float, float]:
             d: dimension of the input space
     """
     # generate dataset
+    x_data = rng.uniform(size=(n_samples, d))
+    y_data = np.linalg.norm(x_data, axis=1)
 
     # test
+    x_test = rng.uniform(size=(n_test, d))
+    y_test = np.linalg.norm(x_test, axis=1)
 
-    return 1, 1
+    # predict
+    y_pred = predict(x_data, y_data, x_test)
+
+    # compute errors
+    mse = np.mean((y_pred - y_test)**2)
+    max_error = np.max(np.abs(y_pred - y_test))
+
+    print(f"n={n_samples}, mse={mse}, max_error={max_error}")
+
+    return mse, max_error
 
 
 def knn_d(d, ax_mean, ax_max) -> None:
@@ -79,7 +101,6 @@ def main() -> None:
     fig, (ax_mean, ax_max) = plt.subplots(2, figsize=[10, 10])
     for d in d_list:
         knn_d(d, ax_mean, ax_max)
-
 
     ax_mean.set_ylabel("mean squared error")
     ax_mean.set_xscale("log")
