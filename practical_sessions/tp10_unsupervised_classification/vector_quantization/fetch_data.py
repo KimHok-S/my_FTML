@@ -9,7 +9,7 @@ import numpy as np
 
 
 def main():
-    X, y = sklearn.datasets.fetch_openml("mnist_784", version=1, return_X_y=True)
+    X, y = sklearn.datasets.fetch_openml("mnist_784", version=1, return_X_y=True, parser='auto')
 
     X_train = X[:10000]
     y_train = y[:10000].astype(int)

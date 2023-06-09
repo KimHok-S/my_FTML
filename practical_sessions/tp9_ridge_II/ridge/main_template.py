@@ -30,6 +30,13 @@ def main():
             """
             add operations here
             """
+            # compute lambda_star and the corresponding risk
+            llambda_star, risk_star = compute_lambda_star_and_risk_star(SIGMA, X, theta_star=1)
+            llambda_stars_risks[d] = (llambda_star, risk_star)
+            # compute risk of the ridge estimator
+            risks[(llambda, d)] = ridge_risk(llambda, N_TESTS, BAYES_RISK, X)
+            # compute bias limit when llambda is large
+            infinity_biases[d] = 1
 
             print(f"\nlambda: {llambda}")
             print(f"d: {d}")

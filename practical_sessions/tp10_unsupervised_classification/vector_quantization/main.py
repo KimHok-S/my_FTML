@@ -40,3 +40,24 @@ create_directory_if_missing(os.path.join("images"))
 """
 Add code here
 """
+print("X_train.shape", X_train.shape)
+
+# convert to .jpg 28x28
+for i in range(0, 10):
+    cv2.imwrite(os.path.join("images", "X_train_" + str(i) + ".jpg"), X_train[i].reshape(28, 28) * 255)
+
+i = 0
+for img in os.listdir("images"):
+    image = cv2.imread(os.path.join("images", img))
+    image = cv2.GaussianBlur(image, (5, 5), sigma)
+    cv2.imwrite(os.path.join("images", str(i) + ".jpg"), image)
+    i += 1
+
+X_train = np.array([cv2.imread(os.path.join("images", str(i) + ".jpg")) for i in range(0, 10)])
+# flatten images
+X_train_flat = np.array([cv2.imread(os.path.join("images", str(i) + ".jpg")).flatten() for i in range(0, 10)])
+print("X_train.shape", X_train.shape)
+
+# compute distance matrix
+distance_matrix = cdist(X_train_flat, X_train_flat, metric='euclidean')
+print("distance_matrix.shape", distance_matrix.shape)

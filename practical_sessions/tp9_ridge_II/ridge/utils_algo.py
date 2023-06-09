@@ -36,8 +36,9 @@ def generate_output_data(
         Y (float matrix): output vector (n, 1)
     """
     n = X.shape[0]
-    return np.ones(shape=(n, 1))
-
+    epsilon = rng.normal(loc=0, scale=sigma, size=(n, n_tests))
+    Y = X @ theta_star + epsilon
+    return Y
 
 def ridge_regression_estimator(
     X: np.ndarray, y: np.ndarray, lambda_: float
@@ -100,7 +101,13 @@ def compute_lambda_star_and_risk_star(sigma: float, X: np.ndarray, theta_star: n
 
     """
     # print(f"n={n}, d={d}, trace={trace}")
-    return 1, 1
+    n, d = X.shape
+    covariance_matrix = X.T @ X
+    Sigma_matrix = covariance_matrix / n
+    trace = np.trace(Sigma_matrix)
+    lambda_star = sigma**2 / trace
+    risk_star = sigma**2 * d / n
+    return lambda_star, risk_star
 
 
 def ridge_risk(
@@ -131,5 +138,11 @@ def ridge_risk(
         risk_estimation (float): estimation of the excess risk of the Ridge
         estimator in this setup.
     """
-    n = X.shape[0]
-    return 1
+    sigma = SIGMA
+    risk_estimation = 0
+    for i in range(n_tests):
+        y = generate_output_data(X, theta_star, sigma, n_tests)
+        theta_hat = ridge_regression_estimator(X, y, lambda_)
+        risk_estimation += error(theta_hat, X, y)
+    risk_estimation /= n_tests
+    return risk_estimation
