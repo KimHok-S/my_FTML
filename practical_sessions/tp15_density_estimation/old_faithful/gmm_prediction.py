@@ -58,18 +58,21 @@ def prediction_gmm(gmm: GaussianMixture, x: np.ndarray) -> np.ndarray:
     # compute the probability density for each sample in XY
     # we apply an exponential because the score_samples
     # returned are logs of the density probabilities.
-    p_x_y = 1
+    p_x_y = []
+    for i in range(len(XY)):
+        p_x_y.append(np.exp(gmm.score_samples(XY[i].reshape(1, -1))))
+
     # reorganize the densities in order to sum them
     # more conveniently afterwards
     # https://numpy.org/doc/stable/reference/generated/numpy.reshape.html
     # We need to sum over y values.
-    p_x_y = 1
+    p_x_y = np.reshape(p_x_y, (nb_x, NB_Y), order="F")
 
-    p_x = 1
+    p_x = np.sum(p_x_y, axis=1)
 
     # vectorized approximatations of the conditional expected values of y for
     # each value in x.
-    preds = 1
+    preds = np.sum(p_x_y * y, axis=1) / p_x
     return preds
 
 
@@ -90,10 +93,33 @@ def main() -> None:
     """
     # compute the optimal number of components according to the Bayesian
     # information criterion
+    optimal_nb_components = [i for i in range(1, 10)]
+    bic = []
+    for i in range(1, 10):
+        gmm = GaussianMixture(n_components=i)
+        gmm.fit(data)
+        bic.append(gmm.bic(data))
+    optimal_nb_components = optimal_nb_components[np.argmin(bic)]
+    print ("Optimal number of components: ", optimal_nb_components)
 
     # fit a gmm with this optimal number of components
+    gmm = GaussianMixture(n_components=optimal_nb_components)
+    gmm.fit(data)
 
     # compute the predictions for a sequence of x values
+    x = np.linspace(1.5, 5, num=100)
+    preds = prediction_gmm(gmm, x)
+
+    # plot the predictions
+    plt.figure(figsize=[12, 10])
+    plt.scatter(data[:, 0], data[:, 1])
+    plt.plot(x, preds, color="red")
+    plt.xlabel("eruption duration (min)")
+    plt.ylabel("time before the next eruption (min)")
+    plt.title("Old Faithful eruption dataset")
+    fig_name = "prediction_old_faithful.pdf"
+    fig_path = os.path.join("images", fig_name)
+    plt.savefig(fig_path)
 
 if __name__ == "__main__":
     main()
