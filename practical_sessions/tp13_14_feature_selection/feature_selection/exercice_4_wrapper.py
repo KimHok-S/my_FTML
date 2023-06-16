@@ -60,3 +60,28 @@ if __name__ == "__main__":
     """
     Add lines here
     """
+    pipeline = Pipeline(
+        [
+            ("scaler", MaxAbsScaler()),
+            ("clf", LogisticRegression(C=C, solver="liblinear", random_state=42)),
+        ]
+    )
+
+    classifier = LinearPipeline(pipeline, "clf")
+
+    selector = RFE(classifier, step=step, n_features_to_select=num_features, verbose=1)
+
+    selector.fit(X_train, y_train)
+
+    # save vocaulary
+    vocabulary = selector.named_steps["vectorizer"].vocabulary_
+    with open(os.path.join("data", "vocabulary.txt"), "w") as f:
+        for word, index in vocabulary.items():
+            f.write(f"{word}\t{index}\n")
+
+    print("Number of selected features: %d" % selector.n_features_)
+    print("Selected features: %s" % selector.support_)
+    print("Feature ranking: %s" % selector.ranking_)
+    print("Accuracy: %f" % selector.score(X_test, y_test))
+    print("Accuracy: %f" % selector.score(X_train, y_train))
+    

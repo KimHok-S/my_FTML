@@ -34,6 +34,11 @@ def save_vocabulary(clf: Pipeline) -> None:
     """
     Add lines here
     """
+    vocabulary = vectorizer.vocabulary_
+    with open("vocabulary.txt", "w") as f:
+        for word in vocabulary:
+            f.write(word + "\n")
+    print("vocabulary size: ", len(vocabulary))
 
 
 if __name__ == "__main__":
@@ -43,3 +48,16 @@ if __name__ == "__main__":
     """
     Add lines here
     """
+    clf = Pipeline([
+        ("vectorizer", CountVectorizer(ngram_range=(1, 2), min_df=5)),
+        ("scaler", MaxAbsScaler()),
+        ("classifier", LogisticRegression())
+    ])
+
+    clf.fit(traindata.data, traindata.target)
+
+    save_vocabulary(clf)
+
+    scores = cross_val_score(clf, testdata.data, testdata.target, cv=5, n_jobs=num_jobs)
+    print("cross-validation scores: ", scores)
+    print("mean cross-validation score: ", scores.mean())

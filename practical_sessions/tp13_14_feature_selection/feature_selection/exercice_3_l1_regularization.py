@@ -16,6 +16,14 @@ from sklearn.pipeline import Pipeline
 
 num_jobs = -1
 
+def save_vocabulary(clf: Pipeline):
+    """
+    Save the vocabulary in a file
+    """
+    vocabulary = clf.named_steps["vectorizer"].vocabulary_
+    with open(os.path.join("data", "vocabulary.txt"), "w") as f:
+        for word, index in vocabulary.items():
+            f.write(f"{word}\t{index}\n")
 
 def sparsity_scorer(clf: Pipeline, *args) -> float:
     """
@@ -34,3 +42,5 @@ if __name__ == "__main__":
     """
     Add lines here.
     """
+
+
